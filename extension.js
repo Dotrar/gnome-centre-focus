@@ -20,6 +20,7 @@
 
 const Meta = imports.gi.Meta;
 const Clutter = imports.gi.Clutter;
+const overview = imports.ui.main.overview;
 
 class Extension {
     constructor() {
@@ -46,24 +47,27 @@ class Extension {
     }
     
     _moveMouse(){
-        // get currently focused window 
-        const win = global.display.focus_window;
-        if (this._seat == null || win == null){
-            return;
-        }
-        const win_rect = win.get_frame_rect();
-        const [x, y] = global.get_pointer();
+        if (!overview.visible) {
+            // get currently focused window 
+            const win = global.display.focus_window;
+            if (this._seat == null || win == null){
+                return;
+            }
+            const win_rect = win.get_frame_rect();
+            const [x, y] = global.get_pointer();
 
-        //check if the cursor is already in the window 
-        const pointer_rect = new Meta.Rectangle({ x, y, width: 1, height: 1 });
-        if (pointer_rect.intersect(win_rect)[0]){
-            return;
+            //check if the cursor is already in the window 
+            const pointer_rect = new Meta.Rectangle({ x, y, width: 1, height: 1 });
+            if (pointer_rect.intersect(win_rect)[0]){
+                return;
+            }
+            
+            //move to new position
+            const nx = win_rect.x + win_rect.width / 2;
+            const ny = win_rect.y + win_rect.height / 2;
+            this._seat.warp_pointer(nx, ny);
         }
-        
-        //move to new position
-        const nx = win_rect.x + win_rect.width / 2;
-        const ny = win_rect.y + win_rect.height / 2;
-        this._seat.warp_pointer(nx, ny);
+
     }
 
 }
